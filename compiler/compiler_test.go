@@ -143,7 +143,7 @@ func concatInstructions(s []code.Instructions) code.Instructions {
 
 func testConstants(t *testing.T, expected []interface{}, actual []object.Object) error {
 	if len(expected) != len(actual) {
-		return fmt.Errorf("wrong number of constants. got=%d, wang=%d", len(actual), len(expected))
+		return fmt.Errorf("wrong number of constants. got=%d, want=%d", len(actual), len(expected))
 	}
 
 	for i, constant := range expected {
@@ -620,7 +620,7 @@ func TestCompilerScopes(t *testing.T) {
 
 	last := compiler.scopes[compiler.scopeIndex].lastInstruction
 	if last.Opcode != code.OpSub {
-		t.Errorf("lastInstruction.Opcode wrong. got=%d, wang=%d", last.Opcode, code.OpSub)
+		t.Errorf("lastInstruction.Opcode wrong. got=%d, want=%d", last.Opcode, code.OpSub)
 	}
 
 	if compiler.symbolTable.Outer != globalSymbolTable {
@@ -721,6 +721,56 @@ func TestFunctionCalls(t *testing.T) {
 			expectedConstants: []interface{}{
 				[]code.Instructions{
 					code.Make(code.OpReturn),
+				},
+				24,
+				25,
+				26,
+			},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpSetGlobal, 0),
+				code.Make(code.OpGetGlobal, 0),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpConstant, 2),
+				code.Make(code.OpConstant, 3),
+				code.Make(code.OpCall, 3),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input: `
+			let oneArg = fn(a) { a };
+			oneArg(24);
+			`,
+			expectedConstants: []interface{}{
+				[]code.Instructions{
+					code.Make(code.OpGetLocal, 0),
+					code.Make(code.OpReturnValue),
+				},
+				24,
+			},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpSetGlobal, 0),
+				code.Make(code.OpGetGlobal, 0),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpCall, 1),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input: `
+			let manyArg = fn(a, b, c) { a; b; c; };
+			manyArg(24, 25, 26);
+			`,
+			expectedConstants: []interface{}{
+				[]code.Instructions{
+					code.Make(code.OpGetLocal, 0),
+					code.Make(code.OpPop),
+					code.Make(code.OpGetLocal, 1),
+					code.Make(code.OpPop),
+					code.Make(code.OpGetLocal, 2),
+					code.Make(code.OpReturnValue),
 				},
 				24,
 				25,
