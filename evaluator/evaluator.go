@@ -287,8 +287,11 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 		extendEnv := extendFunctionEnv(fn, args)
 		evaluated := Eval(fn.Body, extendEnv)
 		return unwrapReturnValue(evaluated)
-	case *object.BUILTIN:
-		return fn.Fn(args...)
+	case *object.Builtin:
+		if result := fn.Fn(args...); result != nil {
+			return result
+		}
+		return NULL
 	default:
 		return newError("not a function: %s", fn.Type())
 	}

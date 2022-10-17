@@ -100,12 +100,12 @@ type String struct {
 func (s *String) Type() ObjectType { return STRING_OBJ }
 func (s *String) Inspect() string  { return s.Value }
 
-type BUILTIN struct {
+type Builtin struct {
 	Fn BuiltinFunction
 }
 
-func (b *BUILTIN) Type() ObjectType { return BUILTIN_OBJ }
-func (*BUILTIN) Inspect() string    { return "builtin function" }
+func (b *Builtin) Type() ObjectType { return BUILTIN_OBJ }
+func (*Builtin) Inspect() string    { return "builtin function" }
 
 type Array struct {
 	Elements []Object
