@@ -665,3 +665,100 @@ func TestClosures(t *testing.T) {
 
 	runVmTests(t, tests)
 }
+
+func TestRecursiveFunctions(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input: `
+			let countDown = fn(x) {
+				if (x == 0) {
+					return 0;
+				} else {
+					countDown(x - 1);
+				}
+			};
+			countDown(1);
+			`,
+			expected: 0,
+		},
+		{
+			input: `
+			let countDown = fn(x) {
+				if (x == 0) {
+					return 0;
+				} else {
+					countDown(x - 1);
+				}
+			}
+			let wrapper = fn() {
+				countDown(1);
+			}
+			wrapper();
+			`,
+			expected: 0,
+		},
+		{
+			input: `
+			let wrapper = fn() {
+				let countDown = fn(x) {
+					if(x == 0) {
+						return 0;
+					} else {
+						countDown(x - 1);
+					}
+				}
+
+				countDown(1);
+			};
+			wrapper();
+			`,
+			expected: 0,
+		},
+		// {
+		// 	input: `
+		// 	let wrapper1 = fn(n) {
+		// 		let wrapper2 = fn() {
+		// 			return wrapper1(1)
+		// 		}
+
+		// 		if (n == 1) {
+		// 			return 10;
+		// 		}
+		// 		else {
+		// 			return wrapper2;
+		// 		}
+		// 	}
+
+		// 	let testFn = wrapper1();
+		// 	testFn();
+		// 	`,
+		// 	expected: 10,
+		// },
+	}
+
+	runVmTests(t, tests)
+}
+
+func TestRecursiveFibonacci(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input: `
+			let fibonacci = fn(x) {
+				if (x == 0) {
+					return 0;
+				} else {
+					if (x == 1) {
+						return 1;
+					} else {
+						return fibonacci(x - 1) + fibonacci(x - 2);
+					}
+				}
+			};
+			fibonacci(15);
+			`,
+			expected: 610,
+		},
+	}
+
+	runVmTests(t, tests)
+}
